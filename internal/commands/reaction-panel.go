@@ -169,8 +169,6 @@ func ReactionPanelHandler(s *discordgo.Session, i *discordgo.InteractionCreate) 
 		return
 	}
 
-	utils.SendReport(s, i, utils.SendMessage{Content: "作成中です。", Ephemeral: true})
-
 	for index := range fields {
 		if err := s.MessageReactionAdd(m.ChannelID, m.ID, emoji[index]); err != nil {
 			log.WithFields(log.Fields{"error": err}).Error("reaction error")

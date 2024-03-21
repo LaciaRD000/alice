@@ -7,7 +7,7 @@ import (
 )
 
 func OnMessageReactionAdd(s *discordgo.Session, i *discordgo.MessageReactionAdd) {
-	log.WithFields(log.Fields{"GuildID": i.GuildID, "ChannelID": i.ChannelID, "EmojiName": i.Emoji.Name}).Debug("OnMessageReactionAdd Event")
+	log.WithFields(log.Fields{"GuildID": i.GuildID, "ChannelID": i.ChannelID, "EmojiName": i.Emoji.Name}).Debug("MessageReactionAdd Event")
 
 	var reaction database.Reaction
 	if err := reaction.Find("id = ?", i.MessageID); err != nil {

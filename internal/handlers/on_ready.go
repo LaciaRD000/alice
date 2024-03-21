@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func OnReady(s *discordgo.Session, i *discordgo.Ready) {
+func OnReady(s *discordgo.Session, _ *discordgo.Ready) {
 	log.Infof("bot is ready")
 	err := s.UpdateStatusComplex(discordgo.UpdateStatusData{
 		Activities: []*discordgo.Activity{

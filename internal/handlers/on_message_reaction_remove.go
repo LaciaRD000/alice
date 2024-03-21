@@ -24,7 +24,7 @@ func OnMessageReactionRemove(s *discordgo.Session, i *discordgo.MessageReactionR
 		return
 	} else {
 		if err := s.GuildMemberRoleRemove(i.GuildID, i.UserID, id); err != nil {
-			log.WithFields(log.Fields{"error": err}).Error("role add error")
+			log.WithFields(log.Fields{"error": err}).Error("role remove error")
 		}
 	}
 }

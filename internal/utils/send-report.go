@@ -3,10 +3,11 @@ package utils
 import "github.com/bwmarrin/discordgo"
 
 type SendMessage struct {
-	Content   string
-	Embeds    []*discordgo.MessageEmbed
-	Ephemeral bool
-	Type      discordgo.InteractionResponseType
+	Content    string
+	Embeds     []*discordgo.MessageEmbed
+	Components []discordgo.MessageComponent
+	Ephemeral  bool
+	Type       discordgo.InteractionResponseType
 }
 
 func SendReport(s *discordgo.Session, i *discordgo.InteractionCreate, m SendMessage) {
@@ -17,12 +18,17 @@ func SendReport(s *discordgo.Session, i *discordgo.InteractionCreate, m SendMess
 		msgFlag = discordgo.MessageFlagsCrossPosted
 	}
 
+	if m.Type == 0 { // No Type
+		m.Type = discordgo.InteractionResponseChannelMessageWithSource
+	}
+
 	_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Type: m.Type,
 		Data: &discordgo.InteractionResponseData{
-			Flags:   msgFlag,
-			Content: m.Content,
-			Embeds:  m.Embeds,
+			Flags:      msgFlag,
+			Content:    m.Content,
+			Embeds:     m.Embeds,
+			Components: m.Components,
 		},
 	})
 }

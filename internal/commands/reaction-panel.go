@@ -166,6 +166,13 @@ func ReactionPanelHandler(s *discordgo.Session, i *discordgo.InteractionCreate) 
 		utils.SendReport(s, i, utils.SendMessage{Content: "Reaction-Panelを作成できませんでした。\nReason: database error", Ephemeral: true})
 		return
 	}
+	utils.SendReport(s, i, utils.SendMessage{Content: "作成中です。", Ephemeral: true})
+
+	if err := s.MessageReactionAdd(m.ChannelID, m.ID, ""); err != nil {
+		log.WithFields(log.Fields{"error": err}).Error("reaction error")
+		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。権限が足りないか、その他のエラーです"})
+		return
+	}
 
 	utils.SendReport(s, i, utils.SendMessage{Content: "Reaction-Panelを作成できました。", Ephemeral: true})
 }

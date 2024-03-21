@@ -84,7 +84,7 @@ func (bot *Bot) CreateCommand() error {
 		commands.Mention():              true,
 		commands.UnMention():            true,
 		commands.WelcomeCommand():       false,
-		commands.ReactionPanelCommand(): false,
+		commands.ReactionPanelCommand(): true,
 	}
 
 	for cmd, value := range cmdList {
@@ -122,6 +122,7 @@ func (bot *Bot) RegisHandler() {
 	bot.Session.AddHandler(handlers.OnGuildUpdate)
 	bot.Session.AddHandler(handlers.OnGuildMemberUpdate)
 	bot.Session.AddHandler(handlers.OnMessageReactionAdd)
+	bot.Session.AddHandler(handlers.OnMessageReactionRemove)
 
 	log.Debug("regis handler")
 }

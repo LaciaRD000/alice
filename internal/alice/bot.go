@@ -121,6 +121,7 @@ func (bot *Bot) RegisHandler() {
 	bot.Session.AddHandler(handlers.OnMessageCreate)
 	bot.Session.AddHandler(handlers.OnGuildUpdate)
 	bot.Session.AddHandler(handlers.OnGuildMemberUpdate)
+	bot.Session.AddHandler(handlers.OnMessageReactionAdd)
 
 	log.Debug("regis handler")
 }

@@ -168,6 +168,7 @@ func ReactionPanelHandler(s *discordgo.Session, i *discordgo.InteractionCreate) 
 		utils.SendReport(s, i, utils.SendMessage{Content: "Reaction-Panelを作成できませんでした。\nReason: database error", Ephemeral: true})
 		return
 	}
+
 	utils.SendReport(s, i, utils.SendMessage{Content: "作成中です。", Ephemeral: true})
 
 	for index := range fields {

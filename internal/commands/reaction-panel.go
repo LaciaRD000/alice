@@ -97,13 +97,15 @@ func ReactionPanelHandler(s *discordgo.Session, i *discordgo.InteractionCreate) 
 		description string
 		fields      = make([]*discordgo.MessageEmbedField, 10)
 		reaction    database.Reaction
+		emoji       = []string{"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
 	)
 
 	insertFields := func(i int, option *discordgo.ApplicationCommandInteractionDataOption) {
-		if fields[i-1] == nil {
-			fields[i-1] = &discordgo.MessageEmbedField{}
+		i--
+		if fields[i] == nil {
+			fields[i] = &discordgo.MessageEmbedField{}
 		}
-		fields[i-1].Value = fmt.Sprintf("%d. <@&%s>", i, option.Value.(string))
+		fields[i].Value = fmt.Sprintf("%s. <@&%s>", emoji[i], option.Value.(string))
 	}
 
 	options := i.ApplicationCommandData().Options
@@ -168,10 +170,12 @@ func ReactionPanelHandler(s *discordgo.Session, i *discordgo.InteractionCreate) 
 	}
 	utils.SendReport(s, i, utils.SendMessage{Content: "作成中です。", Ephemeral: true})
 
-	if err := s.MessageReactionAdd(m.ChannelID, m.ID, ""); err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("reaction error")
-		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。権限が足りないか、その他のエラーです"})
-		return
+	for index := range fields {
+		if err := s.MessageReactionAdd(m.ChannelID, m.ID, emoji[index]); err != nil {
+			log.WithFields(log.Fields{"error": err}).Error("reaction error")
+			utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。権限が足りないか、その他のエラーです"})
+			return
+		}
 	}
 
 	utils.SendReport(s, i, utils.SendMessage{Content: "Reaction-Panelを作成できました。", Ephemeral: true})

@@ -15,7 +15,7 @@ func CreateTicket(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 	channels, _ := s.GuildChannels(i.GuildID)
-	if !(ticket.AlmostTicket >= lenChannelName(channels, i.Member.User.Username)) {
+	if !(ticket.AlmostTicket > lenChannelName(channels, i.Member.User.Username)) {
 		utils.SendReport(s, i, utils.SendMessage{Content: "チケットの作成数が多すぎます。", Ephemeral: true})
 		return
 	}

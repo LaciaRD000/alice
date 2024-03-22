@@ -120,7 +120,6 @@ func (bot *Bot) RegisHandler() {
 	bot.Session.AddHandler(handlers.OnInteraction)
 	bot.Session.AddHandler(handlers.OnMessageCreate)
 	bot.Session.AddHandler(handlers.OnAddGuildMember)
-	bot.Session.AddHandler(handlers.OnGuildMemberUpdate)
 	bot.Session.AddHandler(handlers.OnAddMessageReaction)
 	bot.Session.AddHandler(handlers.OnRemoveMessageReaction)
 

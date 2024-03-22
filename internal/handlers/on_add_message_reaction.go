@@ -6,8 +6,8 @@ import (
 	"normalBot/internal/database"
 )
 
-func OnMessageReactionRemove(s *discordgo.Session, i *discordgo.MessageReactionRemove) {
-	log.WithFields(log.Fields{"GuildID": i.GuildID, "ChannelID": i.ChannelID, "EmojiName": i.Emoji.Name}).Debug("OnMessageReactionRemove Event")
+func OnAddMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionAdd) {
+	log.WithFields(log.Fields{"GuildID": i.GuildID, "ChannelID": i.ChannelID, "EmojiName": i.Emoji.Name}).Debug("MessageReactionAdd Event")
 
 	var reaction database.Reaction
 	if err := reaction.Find("id = ?", i.MessageID); err != nil {
@@ -23,8 +23,10 @@ func OnMessageReactionRemove(s *discordgo.Session, i *discordgo.MessageReactionR
 		log.Error("not found role")
 		return
 	} else {
-		if err := s.GuildMemberRoleRemove(i.GuildID, i.UserID, id); err != nil {
-			log.WithFields(log.Fields{"error": err}).Error("role remove error")
+		if err := s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, id); err != nil {
+			log.WithFields(log.Fields{"error": err}).Error("role add error")
+			return
 		}
+
 	}
 }

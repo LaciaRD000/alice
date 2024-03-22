@@ -46,7 +46,7 @@ func (bot *Bot) Startup() error {
 		log.Errorf("Invalid bot parameters: %v", err)
 	}
 
-	// bot.Session.Identify.Intents = discordgo.IntentsGuildVoiceStates
+	bot.Session.Identify.Intents |= discordgo.IntentsAll
 
 	bot.RegisHandler()
 
@@ -119,10 +119,10 @@ func (bot *Bot) RegisHandler() {
 	bot.Session.AddHandler(handlers.OnReady)
 	bot.Session.AddHandler(handlers.OnInteraction)
 	bot.Session.AddHandler(handlers.OnMessageCreate)
-	bot.Session.AddHandler(handlers.OnGuildUpdate)
+	bot.Session.AddHandler(handlers.OnAddGuildMember)
 	bot.Session.AddHandler(handlers.OnGuildMemberUpdate)
-	bot.Session.AddHandler(handlers.OnMessageReactionAdd)
-	bot.Session.AddHandler(handlers.OnMessageReactionRemove)
+	bot.Session.AddHandler(handlers.OnAddMessageReaction)
+	bot.Session.AddHandler(handlers.OnRemoveMessageReaction)
 
 	log.Debug("regis handler")
 }

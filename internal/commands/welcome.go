@@ -48,13 +48,31 @@ func WelcomeHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 	}
 
-	welcome := database.Welcome{
-		GuildID:   i.GuildID,
-		Enabled:   enabled,
-		ChannelID: channel,
+	var welcome database.Welcome
+	if err := welcome.Find("guild_id = ?", i.GuildID); err != nil {
+		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。\nReason: database error", Ephemeral: true})
+		return
 	}
-	if err := welcome.Update(); err != nil {
-		if err = welcome.Create(); err != nil {
+	if welcome.GuildID == "" {
+		// 作成されていなければ作成しよう //
+		welcome = database.Welcome{
+			GuildID:   i.GuildID,
+			Enabled:   enabled,
+			ChannelID: channel,
+		}
+		if err := welcome.Create(); err != nil {
+			utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。\nReason: database error", Ephemeral: true})
+			return
+		}
+	} else {
+		// 作成されていれば上書きしよう //
+		welcome = database.Welcome{
+			GuildID:   i.GuildID,
+			Enabled:   enabled,
+			ChannelID: channel,
+		}
+
+		if err := welcome.Update(); err != nil {
 			utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。\nReason: database error", Ephemeral: true})
 			return
 		}

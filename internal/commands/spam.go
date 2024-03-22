@@ -10,8 +10,8 @@ import (
 func Mention() *discordgo.ApplicationCommand {
 	var permission int64 = discordgo.PermissionAdministrator
 	return &discordgo.ApplicationCommand{
-		Name:                     "mention",
-		Description:              "\"ユーザーに対するメンションを開始します。",
+		Name:                     "spam",
+		Description:              "ユーザーに対するメンションを開始します。",
 		DefaultMemberPermissions: &permission,
 		Options: []*discordgo.ApplicationCommandOption{
 			{

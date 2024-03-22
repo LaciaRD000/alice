@@ -9,8 +9,8 @@ import (
 func UnMention() *discordgo.ApplicationCommand {
 	var permission int64 = discordgo.PermissionAdministrator
 	return &discordgo.ApplicationCommand{
-		Name:                     "un-mention",
-		Description:              "ユーザーに対するメンションを止めます",
+		Name:                     "stop",
+		Description:              "スパムを止めます",
 		DefaultMemberPermissions: &permission,
 	}
 }

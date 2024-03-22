@@ -26,14 +26,21 @@ func BanCommand() *discordgo.ApplicationCommand {
 				Description: "理由を設定できます。",
 				Required:    false,
 			},
+			{
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "delete-duration",
+				Description: "削除をする過去のメッセージの日数を設定できます。",
+				Required:    false,
+			},
 		},
 	}
 }
 
 func BanHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var (
-		userID string
-		reason = "なし"
+		userID   string
+		reason   = "なし"
+		duration = -1
 	)
 	options := i.ApplicationCommandData().Options
 	for _, option := range options {
@@ -42,6 +49,8 @@ func BanHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			userID = option.Value.(string)
 		case "reason":
 			reason = option.Value.(string)
+		case "delete-duration":
+			duration = int(option.Value.(float64))
 		}
 	}
 
@@ -51,7 +60,7 @@ func BanHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	err = s.GuildBanCreateWithReason(i.GuildID, userID, reason, -1)
+	err = s.GuildBanCreateWithReason(i.GuildID, userID, reason, duration)
 	if err != nil {
 		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。Banする権限がないか、またはその他のエラーです。", Ephemeral: true})
 		log.Error(err)

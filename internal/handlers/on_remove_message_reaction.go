@@ -36,7 +36,7 @@ func OnRemoveMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionR
 		}
 	}
 
-	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんに<@&%s>を削除しました。", i.UserID, id), &discordgo.MessageReference{
+	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんの<@&%s>を削除しました。", i.UserID, id), &discordgo.MessageReference{
 		MessageID: i.MessageID,
 		ChannelID: i.ChannelID,
 		GuildID:   i.GuildID,

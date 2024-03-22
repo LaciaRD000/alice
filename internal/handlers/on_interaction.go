@@ -19,8 +19,8 @@ var (
 		// "play":       commands.PlayHandler,
 		// "disconnect": commands.DisconnectHandler,
 		"ban":            commands.BanHandler,
-		"mention":        commands.MentionHandler,
-		"un-mention":     commands.UnMentionHandler,
+		"spam":           commands.MentionHandler,
+		"stop":           commands.UnMentionHandler,
 		"welcome":        commands.WelcomeHandler,
 		"reaction-panel": commands.ReactionPanelHandler,
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 func BanCommand() *discordgo.ApplicationCommand {
-	var permission int64 = discordgo.PermissionAdministrator
+	var permission int64 = discordgo.PermissionBanMembers
 	return &discordgo.ApplicationCommand{
 		Name:                     "ban",
 		Description:              "指定されたユーザーをBanします。",

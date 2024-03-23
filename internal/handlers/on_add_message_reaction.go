@@ -28,14 +28,39 @@ func OnAddMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionAdd)
 	if !ok {
 		log.Error("not found role")
 		return
-	} else {
+	}
+
+	var flag bool
+
+	for _, role := range i.Member.Roles {
+		if role == id {
+			flag = true
+			break
+		}
+	}
+
+	var format string
+
+	if !flag {
 		if err := s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, id); err != nil {
 			log.WithFields(log.Fields{"error": err}).Error("role add error")
 			return
 		}
+		format = "<@%s>さんに<@&%s>を付与しました。"
+	} else {
+		if err := s.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, id); err != nil {
+			log.WithFields(log.Fields{"error": err}).Error("role add error")
+			return
+		}
+		format = "<@%s>さんの<@&%s>を削除しました。"
 	}
 
-	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんに<@&%s>を付与しました。", i.Member.User.ID, id), &discordgo.MessageReference{
+	if err := s.MessageReactionRemove(i.ChannelID, i.MessageID, i.Emoji.Name, i.UserID); err != nil {
+		log.WithFields(log.Fields{"error": err}).Error("reaction remove error")
+		return
+	}
+
+	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf(format, i.Member.User.ID, id), &discordgo.MessageReference{
 		MessageID: i.MessageID,
 		ChannelID: i.ChannelID,
 		GuildID:   i.GuildID,

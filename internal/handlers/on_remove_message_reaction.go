@@ -8,8 +8,9 @@ import (
 	"time"
 )
 
-func OnAddMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionAdd) {
-	log.WithFields(log.Fields{"GuildID": i.GuildID, "ChannelID": i.ChannelID, "EmojiName": i.Emoji.Name}).Debug("MessageReactionAdd Event")
+func OnRemoveMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionRemove) {
+	log.WithFields(log.Fields{"GuildID": i.GuildID, "ChannelID": i.ChannelID, "EmojiName": i.Emoji.Name}).Debug("OnRemoveMessageReaction Event")
+
 	if s.State.User.ID == i.UserID {
 		return
 	}
@@ -29,13 +30,13 @@ func OnAddMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionAdd)
 		log.Error("not found role")
 		return
 	} else {
-		if err := s.GuildMemberRoleAdd(i.GuildID, i.Member.User.ID, id); err != nil {
+		if err := s.GuildMemberRoleRemove(i.GuildID, i.UserID, id); err != nil {
 			log.WithFields(log.Fields{"error": err}).Error("role add error")
 			return
 		}
 	}
 
-	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんに<@&%s>を付与しました。", i.Member.User.ID, id), &discordgo.MessageReference{
+	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんの<@&%s>を削除しました。", i.UserID, id), &discordgo.MessageReference{
 		MessageID: i.MessageID,
 		ChannelID: i.ChannelID,
 		GuildID:   i.GuildID,

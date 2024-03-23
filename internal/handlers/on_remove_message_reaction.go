@@ -34,6 +34,9 @@ func OnRemoveMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionR
 			log.WithFields(log.Fields{"error": err}).Error("role add error")
 			return
 		}
+		if err := s.MessageReactionRemove(i.ChannelID, i.MessageID, id, i.UserID); err != nil {
+			log.WithFields(log.Fields{"error": err}).Error("reaction remove error")
+		}
 	}
 
 	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんの<@&%s>を削除しました。", i.UserID, id), &discordgo.MessageReference{

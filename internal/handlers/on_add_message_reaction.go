@@ -33,6 +33,9 @@ func OnAddMessageReaction(s *discordgo.Session, i *discordgo.MessageReactionAdd)
 			log.WithFields(log.Fields{"error": err}).Error("role add error")
 			return
 		}
+		if err := s.MessageReactionRemove(i.ChannelID, i.MessageID, id, i.UserID); err != nil {
+			log.WithFields(log.Fields{"error": err}).Error("reaction remove error")
+		}
 	}
 
 	m, _ := s.ChannelMessageSendReply(i.ChannelID, fmt.Sprintf("<@%s>さんに<@&%s>を付与しました。", i.Member.User.ID, id), &discordgo.MessageReference{

@@ -81,7 +81,7 @@ func (bot *Bot) CreateCommand() error {
 		// commands.PlayCommand():       false,
 		// commands.DisconnectCommand(): false,
 		commands.BanCommand():           true,
-		commands.Mention():              true,
+		commands.SpamCommand():          true,
 		commands.UnMention():            true,
 		commands.WelcomeCommand():       true,
 		commands.ReactionPanelCommand(): true,

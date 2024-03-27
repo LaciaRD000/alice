@@ -19,7 +19,7 @@ var (
 		// "play":       commands.PlayHandler,
 		// "disconnect": commands.DisconnectHandler,
 		"ban":            commands.BanHandler,
-		"spam":           commands.MentionHandler,
+		"spam":           commands.SpamHandler,
 		"stop":           commands.UnMentionHandler,
 		"welcome":        commands.WelcomeHandler,
 		"reaction-panel": commands.ReactionPanelHandler,

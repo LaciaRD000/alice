@@ -7,7 +7,7 @@ import (
 	"normalBot/internal/utils"
 )
 
-func Mention() *discordgo.ApplicationCommand {
+func SpamCommand() *discordgo.ApplicationCommand {
 	var permission int64 = discordgo.PermissionAdministrator
 	return &discordgo.ApplicationCommand{
 		Name:                     "spam",
@@ -24,7 +24,7 @@ func Mention() *discordgo.ApplicationCommand {
 	}
 }
 
-func MentionHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func SpamHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var msg string
 
 	if mention.ExistsData(i.GuildID) {

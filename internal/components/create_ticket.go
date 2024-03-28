@@ -20,18 +20,31 @@ func CreateTicket(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	ch, err := s.GuildChannelCreate(i.GuildID, i.Member.User.Username, discordgo.ChannelTypeGuildText)
+	ch, err := s.GuildChannelCreateComplex(i.GuildID, discordgo.GuildChannelCreateData{
+		Name:     i.Member.User.Username,
+		Type:     discordgo.ChannelTypeGuildText,
+		ParentID: ticket.Category, // Category ID
+		PermissionOverwrites: []*discordgo.PermissionOverwrite{
+			{
+				ID:    i.Member.User.ID,
+				Type:  discordgo.PermissionOverwriteTypeMember,
+				Allow: discordgo.PermissionAllText,
+				Deny:  0,
+			},
+			{
+				ID:    i.GuildID,
+				Type:  discordgo.PermissionOverwriteTypeRole,
+				Allow: 0,
+				Deny:  discordgo.PermissionAllText,
+			},
+		},
+		NSFW: false,
+	})
 	if err != nil {
 		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: cannot create channel", Ephemeral: true})
+		log.WithFields(log.Fields{"error": err}).Debug("create ticket error")
 		return
 	}
-
-	err = s.ChannelPermissionSet(ch.ID, i.GuildID, discordgo.PermissionOverwriteTypeRole, 0, discordgo.PermissionAllText)
-	if err != nil {
-		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: cannot override channel permissions", Ephemeral: true})
-		return
-	}
-	_ = s.ChannelPermissionSet(ch.ID, i.Member.User.ID, discordgo.PermissionOverwriteTypeMember, discordgo.PermissionAllText, 0)
 
 	// send delete panel embed
 	if err = deletePanel(s, ch.ID); err != nil {

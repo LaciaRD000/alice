@@ -39,6 +39,15 @@ func TicketCommand() *discordgo.ApplicationCommand {
 				Required:    false,
 			},
 			{
+				Type:        discordgo.ApplicationCommandOptionChannel,
+				Name:        "category",
+				Description: "指定されたカテゴリーにチケットを作成します。",
+				Required:    false,
+				ChannelTypes: []discordgo.ChannelType{
+					discordgo.ChannelTypeGuildCategory,
+				},
+			},
+			{
 				Type:        discordgo.ApplicationCommandOptionString,
 				Name:        "title",
 				Description: "埋め込みのタイトルを指定できます。",
@@ -96,6 +105,8 @@ func TicketHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			ticket.WelcomeMessage = option.Value.(string)
 		case "support-member-role":
 			ticket.SupportMemberRole = option.Value.(string)
+		case "category":
+			ticket.Category = option.Value.(string)
 		default:
 			log.Error("not found command option | check option!!")
 		}

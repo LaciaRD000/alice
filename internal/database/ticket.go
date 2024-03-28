@@ -7,6 +7,7 @@ type Ticket struct {
 	AlmostTicket      int
 	WelcomeMessage    string
 	SupportMemberRole string
+	Category          string
 }
 
 func (v *Ticket) Create() error {

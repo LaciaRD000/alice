@@ -5,12 +5,18 @@ import (
 	"github.com/bwmarrin/discordgo"
 	log "github.com/sirupsen/logrus"
 	"normalBot/internal/utils"
+	"strings"
 )
 
 func BuyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	goodsNumber := i.ModalSubmitData().Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
 	goodsQuantity := i.ModalSubmitData().Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
 	payLink := i.ModalSubmitData().Components[2].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
+
+	if !strings.HasPrefix(payLink, "https://pay.paypay.ne.jp/") {
+		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。入力されたPayPayのリンクに誤りがあります。", Ephemeral: true})
+		return
+	}
 
 	ch, err := s.GuildChannelCreate(i.GuildID, i.Member.User.Username, discordgo.ChannelTypeGuildText)
 	if err != nil {

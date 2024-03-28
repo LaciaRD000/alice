@@ -15,7 +15,7 @@ func UnMention() *discordgo.ApplicationCommand {
 	}
 }
 
-func UnMentionHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func StopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if !mention.ExistsData(i.GuildID) {
 		utils.SendReport(s, i, utils.SendMessage{Content: "このサーバーでは実行されていません。"})
 		return

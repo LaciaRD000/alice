@@ -20,7 +20,7 @@ var (
 		// "disconnect": commands.DisconnectHandler,
 		"ban":            commands.BanHandler,
 		"spam":           commands.SpamHandler,
-		"stop":           commands.UnMentionHandler,
+		"stop":           commands.StopHandler,
 		"welcome":        commands.WelcomeHandler,
 		"reaction-panel": commands.ReactionPanelHandler,
 		"timeout":        commands.TimeoutHandler,

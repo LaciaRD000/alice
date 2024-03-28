@@ -24,6 +24,8 @@ var (
 		"welcome":        commands.WelcomeHandler,
 		"reaction-panel": commands.ReactionPanelHandler,
 		"timeout":        commands.TimeoutHandler,
+		"clear":          commands.ClearHandler,
+		"nuke":           commands.NukeHandler,
 	}
 	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"create_ticket": components.CreateTicket,

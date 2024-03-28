@@ -17,18 +17,6 @@ func ShopCommand() *discordgo.ApplicationCommand {
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "title",
-				Description: "埋め込みのタイトルの文章を設定します",
-				Required:    true,
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "description",
-				Description: "埋め込みの説明書きの文章を設定します",
-				Required:    true,
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionString,
 				Name:        "goods-name-1",
 				Description: "商品名を設定できます",
 				Required:    true,
@@ -38,6 +26,30 @@ func ShopCommand() *discordgo.ApplicationCommand {
 				Name:        "price-1",
 				Description: "値段を設定できます",
 				Required:    true,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "title",
+				Description: "埋め込みのタイトルの文章を設定します",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "description",
+				Description: "埋め込みの説明書きの文章を設定します",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "label",
+				Description: "ボタンのラベルを指定できます。",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "image-url",
+				Description: "埋め込みの写真を指定できます。",
+				Required:    false,
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
@@ -158,8 +170,11 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	)
 
 	var (
-		title       string
-		description string
+		title       = "Shop Panel"
+		description = "購入する場合は下のボタンを押してください。"
+		imageURL    string
+		image       = discordgo.MessageEmbedImage{}
+		label       = "購入する"
 		fields      = make([]*discordgo.MessageEmbedField, 10)
 	)
 
@@ -170,6 +185,10 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			title = option.Value.(string)
 		case option.Name == "description":
 			description = option.Value.(string)
+		case option.Name == "label":
+			label = option.Value.(string)
+		case option.Name == "image-url":
+			imageURL = option.Value.(string)
 		case strings.HasPrefix(option.Name, "goods-name"):
 			index, _ := strconv.Atoi(strings.Split(option.Name, "-")[goodsIndex])
 			if fields[index-1] == nil {
@@ -191,12 +210,20 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	fields = utils.SliceParse(fields)
 
+	if imageURL != "" {
+		image = discordgo.MessageEmbedImage{
+			URL:    imageURL,
+			Width:  64,
+			Height: 64,
+		}
+	}
+
 	_, err := s.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
 		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.Button{
-						Label:    "購入する",
+						Label:    label,
 						Style:    discordgo.PrimaryButton,
 						Disabled: false,
 						Emoji: discordgo.ComponentEmoji{
@@ -212,6 +239,7 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Description: description,
 			Color:       255,
 			Fields:      fields,
+			Image:       &image,
 		},
 	})
 	if err != nil {

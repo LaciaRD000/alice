@@ -21,7 +21,7 @@ func CreateTicket(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 
 	ch, err := s.GuildChannelCreateComplex(i.GuildID, discordgo.GuildChannelCreateData{
-		Name:     i.Member.User.Username,
+		Name:     fmt.Sprintf("🎫│ %s", i.Member.User.Username),
 		Type:     discordgo.ChannelTypeGuildText,
 		ParentID: ticket.Category, // Category ID
 		PermissionOverwrites: []*discordgo.PermissionOverwrite{

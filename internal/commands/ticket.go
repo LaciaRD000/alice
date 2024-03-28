@@ -150,7 +150,6 @@ func TicketHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	utils.SendReport(s, i, utils.SendMessage{Content: "Ticket-Panelを作成できました。", Ephemeral: true})
 
 	ticket.ID = m.ID
-	ticket.UserID = i.Member.User.ID
 
 	if err = ticket.Create(); err != nil {
 		log.WithFields(log.Fields{"error": err}).Error("database error")

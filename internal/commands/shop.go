@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/bwmarrin/discordgo"
 	log "github.com/sirupsen/logrus"
+	"normalBot/internal/database"
 	"normalBot/internal/utils"
 	"strconv"
 	"strings"
@@ -26,6 +27,39 @@ func ShopCommand() *discordgo.ApplicationCommand {
 				Name:        "price-1",
 				Description: "値段を設定できます",
 				Required:    true,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionBoolean,
+				Name:        "welcome-mention",
+				Description: "チケットを作成した時に作成されたチャンネルにて作成者にメンションをします。",
+				Required:    true,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "almost-ticket",
+				Description: "同時に作成できる数を指定できます。",
+				Required:    true,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "welcome-message",
+				Description: "チケットを作成した時に作成されたチャンネルにてメッセージを送信します。",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionRole,
+				Name:        "support-member-role",
+				Description: "サポートチームのロールを設定することができます。",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionChannel,
+				Name:        "category",
+				Description: "指定されたカテゴリーにチケットを作成します。",
+				Required:    false,
+				ChannelTypes: []discordgo.ChannelType{
+					discordgo.ChannelTypeGuildCategory,
+				},
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
@@ -135,30 +169,6 @@ func ShopCommand() *discordgo.ApplicationCommand {
 				Description: "値段を設定できます",
 				Required:    false,
 			},
-			{
-				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "goods-name-9",
-				Description: "商品名を設定できます",
-				Required:    false,
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "price-9",
-				Description: "値段を設定できます",
-				Required:    false,
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "goods-name-10",
-				Description: "商品名を設定できます",
-				Required:    false,
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "price-10",
-				Description: "値段を設定できます",
-				Required:    false,
-			},
 		},
 	}
 }
@@ -176,6 +186,7 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		image       = discordgo.MessageEmbedImage{}
 		label       = "購入する"
 		fields      = make([]*discordgo.MessageEmbedField, 10)
+		shop        database.Shop
 	)
 
 	options := i.ApplicationCommandData().Options
@@ -189,6 +200,16 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			label = option.Value.(string)
 		case option.Name == "image-url":
 			imageURL = option.Value.(string)
+		case option.Name == "welcome-mention":
+			shop.WelcomeMention = option.Value.(bool)
+		case option.Name == "almost-ticket":
+			shop.AlmostTicket = int(option.Value.(float64))
+		case option.Name == "welcome-message":
+			shop.WelcomeMessage = option.Value.(string)
+		case option.Name == "support-member-role":
+			shop.SupportMemberRole = option.Value.(string)
+		case option.Name == "category":
+			shop.Category = option.Value.(string)
 		case strings.HasPrefix(option.Name, "goods-name"):
 			index, _ := strconv.Atoi(strings.Split(option.Name, "-")[goodsIndex])
 			if fields[index-1] == nil {
@@ -218,7 +239,7 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 	}
 
-	_, err := s.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+	m, err := s.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
 		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
@@ -246,5 +267,14 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		utils.SendReport(s, i, utils.SendMessage{Content: "Shop-Panelを作成できませんでした。", Ephemeral: true})
 		return
 	}
+
+	shop.ID = m.ID
+
+	if err = shop.Create(); err != nil {
+		log.WithFields(log.Fields{"error": err}).Error("database error")
+		utils.SendReport(s, i, utils.SendMessage{Content: "Shop-Panelを作成できませんでした。\nReason: database error", Ephemeral: true})
+		return
+	}
+
 	utils.SendReport(s, i, utils.SendMessage{Content: "Shop-Panelを作成できました。", Ephemeral: true})
 }

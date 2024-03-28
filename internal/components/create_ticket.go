@@ -38,7 +38,6 @@ func CreateTicket(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Deny:  discordgo.PermissionAllText,
 			},
 		},
-		NSFW: false,
 	})
 	if err != nil {
 		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: cannot create channel", Ephemeral: true})

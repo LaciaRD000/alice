@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	log "github.com/sirupsen/logrus"
+	"normalBot/internal/database"
 	"normalBot/internal/utils"
 	"strings"
 )
@@ -18,18 +19,41 @@ func BuyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	ch, err := s.GuildChannelCreate(i.GuildID, i.Member.User.Username, discordgo.ChannelTypeGuildText)
-	if err != nil {
-		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: cannot create channel", Ephemeral: true})
+	var shop database.Shop
+	if err := shop.Find("id = ?", i.Message.ID); err != nil {
+		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: database", Ephemeral: true})
+		return
+	}
+	channels, _ := s.GuildChannels(i.GuildID)
+	if !(shop.AlmostTicket > lenChannelName(channels, i.Member.User.Username)) {
+		utils.SendReport(s, i, utils.SendMessage{Content: "チケットの作成数が多すぎます。", Ephemeral: true})
 		return
 	}
 
-	err = s.ChannelPermissionSet(ch.ID, i.GuildID, discordgo.PermissionOverwriteTypeRole, 0, discordgo.PermissionAllText)
+	ch, err := s.GuildChannelCreateComplex(i.GuildID, discordgo.GuildChannelCreateData{
+		Name:     i.Member.User.Username,
+		Type:     discordgo.ChannelTypeGuildText,
+		ParentID: shop.Category, // Category ID
+		PermissionOverwrites: []*discordgo.PermissionOverwrite{
+			{
+				ID:    i.Member.User.ID,
+				Type:  discordgo.PermissionOverwriteTypeMember,
+				Allow: discordgo.PermissionAllText,
+				Deny:  0,
+			},
+			{
+				ID:    i.GuildID,
+				Type:  discordgo.PermissionOverwriteTypeRole,
+				Allow: 0,
+				Deny:  discordgo.PermissionAllText,
+			},
+		},
+	})
 	if err != nil {
-		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: cannot override channel permissions", Ephemeral: true})
+		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。管理者にお問い合わせください。\nReason: cannot create channel", Ephemeral: true})
+		log.WithFields(log.Fields{"error": err}).Debug("create shop error")
 		return
 	}
-	_ = s.ChannelPermissionSet(ch.ID, i.Member.User.ID, discordgo.PermissionOverwriteTypeMember, discordgo.PermissionAllText, 0)
 
 	// send info
 	if err = infoPanel(s, ch.ID, goodsNumber, goodsQuantity, payLink); err != nil {
@@ -43,6 +67,23 @@ func BuyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Content: fmt.Sprintf("<#%s>にチケットを作成しました", ch.ID),
 		},
 	})
+
+	// slash-command option
+	if shop.WelcomeMention {
+		_, _ = s.ChannelMessageSendComplex(ch.ID, &discordgo.MessageSend{
+			Content: fmt.Sprintf("<@%s>", i.Member.User.ID),
+		})
+	}
+
+	if shop.WelcomeMessage != "" {
+		_, _ = s.ChannelMessageSendComplex(ch.ID, &discordgo.MessageSend{
+			Content: shop.WelcomeMessage,
+		})
+	}
+
+	if shop.SupportMemberRole != "" {
+		_ = s.ChannelPermissionSet(ch.ID, shop.SupportMemberRole, discordgo.PermissionOverwriteTypeRole, discordgo.PermissionAllText, 0)
+	}
 }
 
 func infoPanel(s *discordgo.Session, chID, goodsNumber, goodsQuantity, payLink string) (err error) {
@@ -89,4 +130,13 @@ func infoPanel(s *discordgo.Session, chID, goodsNumber, goodsQuantity, payLink s
 		},
 	})
 	return err
+}
+
+func lenChannelName(channels []*discordgo.Channel, name string) (count int) {
+	for _, channel := range channels {
+		if channel.Name == name {
+			count++
+		}
+	}
+	return count
 }

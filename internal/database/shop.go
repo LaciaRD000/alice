@@ -1,6 +1,6 @@
 package database
 
-type Ticket struct {
+type Shop struct {
 	ID                string `gorm:"primaryKey"`
 	WelcomeMention    bool
 	AlmostTicket      int
@@ -9,10 +9,10 @@ type Ticket struct {
 	Category          string
 }
 
-func (v *Ticket) Create() error {
+func (v *Shop) Create() error {
 	return db.Create(&v).Error
 }
 
-func (v *Ticket) Find(query string, args ...string) (err error) {
+func (v *Shop) Find(query string, args ...string) (err error) {
 	return db.Where(query, args).Find(&v).Error
 }

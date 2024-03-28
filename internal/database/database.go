@@ -12,7 +12,7 @@ func Open(dsn string) (err error) {
 	if err != nil {
 		return err
 	}
-	return db.AutoMigrate(&Ticket{}, &Verify{}, &AntiSpam{}, &Welcome{}, &Reaction{}, &Shop{}, &StatusPanel{})
+	return db.AutoMigrate(&Ticket{}, &Verify{}, &AntiSpam{}, &Welcome{}, &Reaction{}, &Shop{}, &StatusPanel{}, &Leave{})
 }
 
 /*

@@ -87,7 +87,8 @@ func (bot *Bot) CreateCommand() error {
 		commands.ReactionPanelCommand(): true,
 		commands.TimeoutCommand():       false,
 		commands.ClearCommand():         true,
-		commands.NukeCommand():          false,
+		commands.NukeCommand():          true,
+		commands.StatusPanelCommand():   false,
 	}
 
 	for cmd, value := range cmdList {

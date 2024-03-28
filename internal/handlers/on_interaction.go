@@ -26,12 +26,14 @@ var (
 		"timeout":        commands.TimeoutHandler,
 		"clear":          commands.ClearHandler,
 		"nuke":           commands.NukeHandler,
+		"status-panel":   commands.StatusPanelHandler,
 	}
 	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"create_ticket": components.CreateTicket,
 		"delete_ticket": components.DeleteTicket,
 		"verify":        components.Verify,
 		"buy":           components.ShopTicket,
+		"change_status": components.ChangeStatus,
 	}
 )
 

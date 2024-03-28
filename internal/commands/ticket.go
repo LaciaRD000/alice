@@ -38,47 +38,56 @@ func TicketCommand() *discordgo.ApplicationCommand {
 				Description: "サポートチームのロールを設定することができます。",
 				Required:    false,
 			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "title",
+				Description: "埋め込みのタイトルを指定できます。",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "description",
+				Description: "埋め込みのタイトルを指定できます。",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "label",
+				Description: "ボタンのラベルを指定できます。",
+				Required:    false,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "image-url",
+				Description: "埋め込みの写真を指定できます。",
+				Required:    false,
+			},
 		},
 	}
 }
 
 func TicketHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	m, err := s.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
-		Components: []discordgo.MessageComponent{
-			discordgo.ActionsRow{
-				Components: []discordgo.MessageComponent{
-					discordgo.Button{
-						Label:    "チケットを作成する",
-						Style:    discordgo.PrimaryButton,
-						Disabled: false,
-						Emoji: discordgo.ComponentEmoji{
-							Name: "📩",
-						},
-						CustomID: "create_ticket",
-					},
-				},
-			},
-		},
-		Embed: &discordgo.MessageEmbed{
-			Title:       "チケットを作成",
-			Description: "チケットを作成するには以下のボタンを押してください。",
-			Color:       255,
-		},
-	})
-	if err != nil {
-		utils.SendReport(s, i, utils.SendMessage{Content: "Ticket-Panelを作成できませんでした。", Ephemeral: true})
-		return
-	}
-	utils.SendReport(s, i, utils.SendMessage{Content: "Ticket-Panelを作成できました。", Ephemeral: true})
+	var (
+		title       = "チケットを作成"
+		description = "チケットを作成するには以下のボタンを押してください。"
+		imageURL    string
+		image       = discordgo.MessageEmbedImage{}
+		label       = "チケットを作成"
+		ticket      database.Ticket
+	)
 
-	ticket := database.Ticket{
-		ID:     m.ID,
-		UserID: i.Member.User.ID,
-	}
 	options := i.ApplicationCommandData().Options
 	for _, option := range options {
 		// log.Debugf("name: %s(%T) | value: %v(%T)", option.Name, option.Name, option.Value, option.Value)
 		switch option.Name {
+		case "title":
+			title = option.Value.(string)
+		case "description":
+			description = option.Value.(string)
+		case "label":
+			label = option.Value.(string)
+		case "image-url":
+			imageURL = option.Value.(string)
 		case "welcome-mention":
 			ticket.WelcomeMention = option.Value.(bool)
 		case "almost-ticket":
@@ -91,6 +100,47 @@ func TicketHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			log.Error("not found command option | check option!!")
 		}
 	}
+
+	if imageURL != "" {
+		image = discordgo.MessageEmbedImage{
+			URL:    imageURL,
+			Width:  64,
+			Height: 64,
+		}
+	}
+
+	m, err := s.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						Label:    label,
+						Style:    discordgo.PrimaryButton,
+						Disabled: false,
+						Emoji: discordgo.ComponentEmoji{
+							Name: "📩",
+						},
+						CustomID: "create_ticket",
+					},
+				},
+			},
+		},
+		Embed: &discordgo.MessageEmbed{
+			Title:       title,
+			Description: description,
+			Color:       255,
+			Image:       &image,
+		},
+	})
+	if err != nil {
+		utils.SendReport(s, i, utils.SendMessage{Content: "Ticket-Panelを作成できませんでした。", Ephemeral: true})
+		return
+	}
+	utils.SendReport(s, i, utils.SendMessage{Content: "Ticket-Panelを作成できました。", Ephemeral: true})
+
+	ticket.ID = m.ID
+	ticket.UserID = i.Member.User.ID
+
 	if err = ticket.Create(); err != nil {
 		log.WithFields(log.Fields{"error": err}).Error("database error")
 	}

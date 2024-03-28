@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"normalBot/internal/database"
 	"normalBot/internal/utils"
+	"time"
 )
 
 func StatusPanelCommand() *discordgo.ApplicationCommand {
@@ -27,6 +28,7 @@ func StatusPanelHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Width:  500,
 				Height: 500,
 			},
+			Timestamp: time.Now().Format(time.DateTime),
 		},
 		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{

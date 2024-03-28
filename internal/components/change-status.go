@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"normalBot/internal/database"
 	"normalBot/internal/utils"
+	"time"
 )
 
 func ChangeStatus(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -32,6 +33,7 @@ func ChangeStatus(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Width:  500,
 				Height: 500,
 			},
+			Timestamp: time.Now().Format(time.DateTime),
 		}
 		statusPanel.Status = true
 	} else {
@@ -44,6 +46,7 @@ func ChangeStatus(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Width:  500,
 				Height: 500,
 			},
+			Timestamp: time.Now().Format(time.DateTime),
 		}
 		statusPanel.Status = false
 	}

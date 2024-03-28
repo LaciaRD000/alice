@@ -229,7 +229,7 @@ func ShopHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 						Emoji: discordgo.ComponentEmoji{
 							Name: "💵",
 						},
-						CustomID: "buy_",
+						CustomID: "buy",
 					},
 				},
 			},

@@ -89,7 +89,7 @@ func (bot *Bot) CreateCommand() error {
 		commands.ClearCommand():         true,
 		commands.NukeCommand():          true,
 		commands.StatusPanelCommand():   true,
-		commands.LeaveCommand():         false,
+		commands.LeaveCommand():         true,
 	}
 
 	for cmd, value := range cmdList {

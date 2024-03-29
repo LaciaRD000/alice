@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	log "github.com/sirupsen/logrus"
 	"normalBot/internal/database"
@@ -21,32 +22,29 @@ func ChangeStatus(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	log.Debugf("Before: %v", statusPanel)
 	var embed discordgo.MessageEmbed
 	if !statusPanel.Status {
 		embed = discordgo.MessageEmbed{
 			Title:       "対応状況",
-			Description: "対応可能です。",
+			Description: fmt.Sprintf("対応可能です。\n最終更新: %s", time.Now().Format(time.DateTime)),
 			Color:       utils.IntParse("00FF00"),
 			Image: &discordgo.MessageEmbedImage{
 				URL:    "https://cdn.discordapp.com/attachments/1222881867343204473/1222893474341191751/4.png?ex=6617df4c&is=66056a4c&hm=2660dcb8bb29ea87632a09a0290f47a436eba8efe5bd89c58a2376feb78a8f52&",
 				Width:  500,
 				Height: 500,
 			},
-			Timestamp: time.Now().Format(time.DateTime),
 		}
 		statusPanel.Status = true
 	} else {
 		embed = discordgo.MessageEmbed{
 			Title:       "対応状況",
-			Description: "対応不可能です。",
+			Description: fmt.Sprintf("対応できません。\n最終更新: %s", time.Now().Format(time.DateTime)),
 			Color:       utils.IntParse("FF0000"),
 			Image: &discordgo.MessageEmbedImage{
 				URL:    "https://cdn.discordapp.com/attachments/1222881867343204473/1222893474567950436/3.png?ex=6617df4c&is=66056a4c&hm=2e6f0aa40655411c7e04b0da13ac332ccfd129572295209b4102168dc52ccdeb&",
 				Width:  500,
 				Height: 500,
 			},
-			Timestamp: time.Now().Format(time.DateTime),
 		}
 		statusPanel.Status = false
 	}
@@ -71,15 +69,17 @@ func ChangeStatus(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		},
 	}); err != nil {
 		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。メッセージの編集の権限が不足しています。", Ephemeral: true})
+		log.WithFields(log.Fields{"error": err}).Debug("MessageEdit Error")
 		return
 	}
 
-	log.Debugf("After:  %v", statusPanel)
 	if err := statusPanel.Update(); err != nil {
 		log.WithFields(log.Fields{"error": err}).Debug("database error")
 		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しましした。\nReason: database error"})
 		return
 	}
+
+	log.Debug(time.Now().Format(time.DateTime))
 
 	utils.SendReport(s, i, utils.SendMessage{Content: "変更しました。", Ephemeral: true})
 }

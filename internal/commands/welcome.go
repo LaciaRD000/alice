@@ -26,7 +26,7 @@ func WelcomeCommand() *discordgo.ApplicationCommand {
 				Type:        discordgo.ApplicationCommandOptionBoolean,
 				Name:        "enabled",
 				Description: "有効化するか選択してください。",
-				Required:    false,
+				Required:    true,
 			},
 		},
 	}

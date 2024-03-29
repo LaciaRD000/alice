@@ -28,6 +28,7 @@ var (
 		"nuke":           commands.NukeHandler,
 		"status-panel":   commands.StatusPanelHandler,
 		"leave":          commands.LeaveHandler,
+		"level-config":   commands.LevelConfigHandler,
 	}
 	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"create_ticket": components.CreateTicket,

@@ -71,37 +71,42 @@ func (bot *Bot) Startup() error {
 }
 
 func (bot *Bot) CreateCommand() error {
-	// global: true, dev: false
-	cmdList := map[*discordgo.ApplicationCommand]bool{
-		commands.TicketCommand(): true,
-		commands.VerifyCommand(): true,
-		// commands.AntiSpamCommand(): false,
-		commands.ShopCommand(): true,
-		commands.HelpCommand(): true,
+	PublicCmdList := []*discordgo.ApplicationCommand{
+		commands.TicketCommand(),
+		commands.VerifyCommand(),
+		// commands.AntiSpamCommand(),
+		commands.ShopCommand(),
+		commands.HelpCommand(),
 		// commands.PlayCommand():       false,
 		// commands.DisconnectCommand(): false,
-		commands.BanCommand():           true,
-		commands.SpamCommand():          true,
-		commands.UnMention():            true,
-		commands.WelcomeCommand():       true,
-		commands.ReactionPanelCommand(): true,
-		commands.TimeoutCommand():       false,
-		commands.ClearCommand():         true,
-		commands.NukeCommand():          true,
-		commands.StatusPanelCommand():   true,
-		commands.LeaveCommand():         true,
+		commands.BanCommand(),
+		commands.SpamCommand(),
+		commands.UnMention(),
+		commands.WelcomeCommand(),
+		commands.ReactionPanelCommand(),
+		commands.TimeoutCommand(),
+		commands.ClearCommand(),
+		commands.NukeCommand(),
+		commands.StatusPanelCommand(),
+		commands.LeaveCommand(),
 	}
 
-	for cmd, value := range cmdList {
-		var guildID string
-		if !value {
-			guildID = bot.Environment.DevGuildID
-		}
+	if _, err := bot.Session.ApplicationCommandBulkOverwrite(bot.Session.State.User.ID, "", PublicCmdList); err != nil {
+		return err
+	} else {
+		log.Debugf("Successfully override existing command")
+	}
 
-		if c, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, guildID, cmd); err != nil {
+	PrivateCmdList := []*discordgo.ApplicationCommand{
+		commands.LevelConfigCommand(),
+	}
+
+	for _, cmd := range PrivateCmdList {
+		if c, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, bot.Environment.DevGuildID, cmd); err != nil {
+			log.Errorf("Failed create private command")
 			return err
 		} else {
-			log.Debugf("Successfully create command: %v", cmd.Name)
+			log.Debugf("Successfully create command: %v", c.Name)
 			bot.Commands = append(bot.Commands, c)
 		}
 	}

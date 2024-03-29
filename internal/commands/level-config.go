@@ -2,6 +2,8 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
+	log "github.com/sirupsen/logrus"
+	"normalBot/internal/database"
 	"normalBot/internal/utils"
 )
 
@@ -58,5 +60,28 @@ func LevelConfigCommand() *discordgo.ApplicationCommand {
 }
 
 func LevelConfigHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	utils.SendReport(s, i, utils.SendMessage{Content: "制作中だお", Ephemeral: true})
+	var levelConfig = database.LevelConfig{GuildID: i.GuildID}
+
+	options := i.ApplicationCommandData().Options
+	for _, option := range options {
+		switch option.Name {
+		case "enabled":
+			levelConfig.Enabled = option.Value.(bool)
+		case "level-up-notice":
+			levelConfig.Option = int(option.Value.(float64))
+		case "channel":
+			levelConfig.ChannelID = option.Value.(string)
+		case "format":
+			levelConfig.Format = option.Value.(string)
+		default:
+			log.Error("not found command option | check option!!")
+		}
+	}
+
+	if err := levelConfig.Update(); err != nil {
+		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。\nReason: database error", Ephemeral: true})
+		return
+	}
+
+	utils.SendReport(s, i, utils.SendMessage{Content: "設定を変更できました。", Ephemeral: true})
 }

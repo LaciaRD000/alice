@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"normalBot/internal/database"
+	"normalBot/internal/utils"
 	"strconv"
 	"strings"
 )
@@ -38,6 +39,7 @@ func OnMessageCreate(s *discordgo.Session, i *discordgo.MessageCreate) {
 
 		if n := rand.Intn(2); n == 1 {
 			userLevel.MessagesCount++
+			log.Debug("カウント増加")
 		} else {
 		}
 
@@ -47,9 +49,21 @@ func OnMessageCreate(s *discordgo.Session, i *discordgo.MessageCreate) {
 
 			switch levelConfig.Option {
 			case 1:
-				_, _ = s.ChannelMessageSend(i.ChannelID, levelMessageParse(levelConfig.Format, i.Author.ID, userLevel.Level))
+				_, _ = s.ChannelMessageSendComplex(i.ChannelID, &discordgo.MessageSend{
+					Embed: &discordgo.MessageEmbed{
+						Title:       "レベルアップ通知",
+						Description: levelMessageParse(levelConfig.Format, i.Author.ID, userLevel.Level),
+						Color:       utils.IntParse("ffd700"),
+					},
+				})
 			case 2:
-				_, _ = s.ChannelMessageSend(levelConfig.ChannelID, levelMessageParse(levelConfig.Format, i.Author.ID, userLevel.Level))
+				_, _ = s.ChannelMessageSendComplex(levelConfig.ChannelID, &discordgo.MessageSend{
+					Embed: &discordgo.MessageEmbed{
+						Title:       "レベルアップ通知",
+						Description: levelMessageParse(levelConfig.Format, i.Author.ID, userLevel.Level),
+						Color:       utils.IntParse("ffd700"),
+					},
+				})
 			}
 		}
 

@@ -52,7 +52,7 @@ func LevelConfigCommand() *discordgo.ApplicationCommand {
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
 				Name:        "format",
-				Description: "通知を行う際のFormatを指定してください。ユーザーをメンションするには<mention>と書いてください。",
+				Description: "通知を行う際のFormatを指定してください。ユーザーをメンションするには<mention>、レベルを表示するには<level>と書いてください",
 				Required:    false,
 			},
 		},
@@ -60,7 +60,10 @@ func LevelConfigCommand() *discordgo.ApplicationCommand {
 }
 
 func LevelConfigHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	var levelConfig = database.LevelConfig{GuildID: i.GuildID}
+	var (
+		levelConfig = database.LevelConfig{GuildID: i.GuildID}
+		format      = "<mention>さんがlv<level>にレベルアップしました。"
+	)
 
 	options := i.ApplicationCommandData().Options
 	for _, option := range options {
@@ -72,11 +75,13 @@ func LevelConfigHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		case "channel":
 			levelConfig.ChannelID = option.Value.(string)
 		case "format":
-			levelConfig.Format = option.Value.(string)
+			format = option.Value.(string)
 		default:
 			log.Error("not found command option | check option!!")
 		}
 	}
+
+	levelConfig.Format = format
 
 	if err := levelConfig.Update(); err != nil {
 		utils.SendReport(s, i, utils.SendMessage{Content: "エラーが発生しました。\nReason: database error", Ephemeral: true})

@@ -1,2 +1,3 @@
 # Alice Project
-This is discord bot by xeradov2
+This is discord bot
+Created by xeradov2
